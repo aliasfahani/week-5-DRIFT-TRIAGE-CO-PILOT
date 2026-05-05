@@ -1,0 +1,20 @@
+[project]
+name = "week5-drift-triage-copilot"
+version = "0.1.0"
+description = "Week 5 AI Engineering bootcamp project: drift triage co-pilot."
+requires-python = ">=3.11"
+dependencies = [
+  "numpy",
+  "pandas",
+  "scikit-learn",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
