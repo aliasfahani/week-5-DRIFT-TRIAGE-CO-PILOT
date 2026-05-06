@@ -1,0 +1,4 @@
+{
+  "threshold": 0.3845233329570477,
+  "rule": "highest validation threshold with recall >= 0.75"
+}

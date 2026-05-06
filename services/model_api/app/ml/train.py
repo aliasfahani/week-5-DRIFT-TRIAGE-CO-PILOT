@@ -1,11 +1,12 @@
 """Train the first project model pipeline.
 
-This script will eventually:
-- load bank-additional-full.csv,
-- split train/validation/test with stratification,
-- train a preprocessing + classifier pipeline,
-- tune the highest threshold with recall >= 0.75,
-- report validation and test metrics.
+This script:
+- loads bank-additional-full.csv,
+- splits train/validation/test with stratification,
+- trains a preprocessing + classifier pipeline,
+- tunes the highest threshold with recall >= 0.75,
+- reports validation and test metrics,
+- saves model artifacts for the FastAPI service.
 """
 
 from __future__ import annotations
@@ -15,6 +16,7 @@ from pathlib import Path
 
 from sklearn.model_selection import train_test_split
 
+from services.model_api.app.ml.artifacts import save_training_artifacts
 from services.model_api.app.ml.evaluate import classification_metrics_at_threshold
 from services.model_api.app.ml.preprocess import (
     RANDOM_STATE,
@@ -22,6 +24,7 @@ from services.model_api.app.ml.preprocess import (
     load_bank_marketing_csv,
     prepare_features_and_target,
 )
+from services.model_api.app.ml.reference import build_reference_statistics
 from services.model_api.app.ml.threshold import select_highest_threshold_for_recall
 
 DEFAULT_DATA_PATH = Path("data/raw/bank-additional-full.csv")
@@ -41,7 +44,7 @@ def resolve_data_path() -> Path:
 
 
 def train_model(data_path: Path | None = None):
-    """Train the pipeline and return the fitted model, threshold, and metrics."""
+    """Train the pipeline and return the fitted model, threshold, metrics, and reference stats."""
     data = load_bank_marketing_csv(data_path or resolve_data_path())
     X, y = prepare_features_and_target(data)
 
@@ -52,6 +55,7 @@ def train_model(data_path: Path | None = None):
         stratify=y,
         random_state=RANDOM_STATE,
     )
+
     X_val, X_test, y_val, y_test = train_test_split(
         X_temp,
         y_temp,
@@ -71,29 +75,55 @@ def train_model(data_path: Path | None = None):
     )
     threshold = threshold_result["threshold"]
 
+    train_scores = pipeline.predict_proba(X_train)[:, 1]
     test_scores = pipeline.predict_proba(X_test)[:, 1]
+
+    validation_metrics = classification_metrics_at_threshold(y_val, val_scores, threshold)
+    test_metrics = classification_metrics_at_threshold(y_test, test_scores, threshold)
+
+    split_sizes = {
+        "train": len(X_train),
+        "validation": len(X_val),
+        "test": len(X_test),
+    }
+
+    reference_stats = build_reference_statistics(
+        X_reference=X_train,
+        reference_scores=train_scores,
+        threshold=threshold,
+    )
+
     return {
         "pipeline": pipeline,
         "threshold": threshold,
-        "validation": classification_metrics_at_threshold(y_val, val_scores, threshold),
-        "test": classification_metrics_at_threshold(y_test, test_scores, threshold),
-        "split_sizes": {
-            "train": len(X_train),
-            "validation": len(X_val),
-            "test": len(X_test),
-        },
+        "validation": validation_metrics,
+        "test": test_metrics,
+        "split_sizes": split_sizes,
+        "reference_stats": reference_stats,
     }
 
 
 def main() -> None:
-    """Run the training workflow."""
+    """Run the training workflow and save artifacts."""
     result = train_model()
+
+    artifact_paths = save_training_artifacts(
+        pipeline=result["pipeline"],
+        threshold=result["threshold"],
+        validation_metrics=result["validation"],
+        test_metrics=result["test"],
+        split_sizes=result["split_sizes"],
+        reference_stats=result["reference_stats"],
+    )
+
     printable = {
         "selected_threshold": result["threshold"],
         "split_sizes": result["split_sizes"],
         "validation": result["validation"],
         "test": result["test"],
+        "artifacts": artifact_paths,
     }
+
     print(json.dumps(printable, indent=2))
 
 

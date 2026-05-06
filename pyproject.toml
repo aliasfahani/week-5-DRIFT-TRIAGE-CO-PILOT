@@ -7,6 +7,11 @@ dependencies = [
   "numpy",
   "pandas",
   "scikit-learn",
+  "joblib",
+  "fastapi",
+  "uvicorn",
+  "pydantic",
+  "scipy",
 ]
 
 [project.optional-dependencies]
@@ -18,3 +23,6 @@ dev = [
 testpaths = ["tests"]
 pythonpath = ["."]
 
+[tool.setuptools.packages.find]
+include = ["services*"]
+exclude = ["data*", "artifacts*", "runtime*", "tests*"]
