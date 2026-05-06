@@ -1,0 +1,59 @@
+{
+  "target_column": "y",
+  "dropped_columns": [
+    "duration"
+  ],
+  "numeric_columns": [
+    "age",
+    "campaign",
+    "pdays",
+    "previous",
+    "emp.var.rate",
+    "cons.price.idx",
+    "cons.conf.idx",
+    "euribor3m",
+    "nr.employed",
+    "pdays_was_999"
+  ],
+  "categorical_columns": [
+    "job",
+    "marital",
+    "education",
+    "default",
+    "housing",
+    "loan",
+    "contact",
+    "month",
+    "day_of_week",
+    "poutcome"
+  ],
+  "required_raw_input_columns": [
+    "age",
+    "job",
+    "marital",
+    "education",
+    "default",
+    "housing",
+    "loan",
+    "contact",
+    "month",
+    "day_of_week",
+    "campaign",
+    "pdays",
+    "previous",
+    "poutcome",
+    "emp.var.rate",
+    "cons.price.idx",
+    "cons.conf.idx",
+    "euribor3m",
+    "nr.employed"
+  ],
+  "engineered_columns": [
+    "pdays_was_999"
+  ],
+  "notes": [
+    "duration is intentionally dropped because it leaks the target.",
+    "pdays == 999 is converted to pdays = -1 and pdays_was_999 = 1.",
+    "unknown categorical values are preserved as valid categories."
+  ]
+}

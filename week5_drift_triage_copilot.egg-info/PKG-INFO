@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: week5-drift-triage-copilot
+Version: 0.1.0
+Summary: Week 5 AI Engineering bootcamp project: drift triage co-pilot.
+Requires-Python: >=3.11
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: scikit-learn
+Requires-Dist: joblib
+Requires-Dist: fastapi
+Requires-Dist: uvicorn
+Requires-Dist: pydantic
+Requires-Dist: scipy
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"

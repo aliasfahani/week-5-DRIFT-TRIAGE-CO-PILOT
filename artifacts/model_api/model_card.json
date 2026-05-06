@@ -1,0 +1,60 @@
+{
+  "model_name": "bank_marketing_classifier",
+  "model_type": "sklearn_pipeline_logistic_regression",
+  "dataset": "UCI Bank Marketing bank-additional-full.csv",
+  "target": "y",
+  "operating_threshold": 0.3845233329570477,
+  "threshold_rule": "highest validation threshold with recall >= 0.75",
+  "split_strategy": "stratified 60/20/20 split with random_state=42",
+  "split_sizes": {
+    "train": 24712,
+    "validation": 8238,
+    "test": 8238
+  },
+  "validation_metrics": {
+    "threshold": 0.3845233329570477,
+    "auc": 0.801666278480117,
+    "recall": 0.75,
+    "precision": 0.2455026455026455,
+    "f1": 0.3699176189210736,
+    "confusion_matrix": [
+      [
+        5171,
+        2139
+      ],
+      [
+        232,
+        696
+      ]
+    ]
+  },
+  "test_metrics": {
+    "threshold": 0.3845233329570477,
+    "auc": 0.8012617045615359,
+    "recall": 0.7478448275862069,
+    "precision": 0.24601205246366536,
+    "f1": 0.3702320618831689,
+    "confusion_matrix": [
+      [
+        5183,
+        2127
+      ],
+      [
+        234,
+        694
+      ]
+    ]
+  },
+  "model_sha256": "fd1070dea2e5e282f94dde2726c137a73ef841fe13aef609feb4b031d4d0916e",
+  "environment": {
+    "python": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "scikit_learn": "1.8.0"
+  },
+  "important_data_decisions": [
+    "Dropped duration to prevent target leakage.",
+    "Encoded target y as no=0 and yes=1.",
+    "Handled pdays == 999 as a sentinel value.",
+    "Kept unknown as a meaningful category."
+  ]
+}
