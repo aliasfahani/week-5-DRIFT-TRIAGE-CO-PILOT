@@ -13,6 +13,7 @@ from services.model_api.app.schemas import (
     HealthResponse,
     PredictionResponse,
 )
+from services.model_api.app.webhook import notify_agent_if_severity_changed
 
 app = FastAPI(
     title="Drift Triage Co-Pilot Model API",
@@ -68,5 +69,23 @@ def drift_report(window_size: int = 100):
     """Generate a drift report from recent predictions."""
     try:
         return generate_drift_report(window_size=window_size)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/drift/check-and-notify")
+async def drift_check_and_notify(window_size: int = 100):
+    """Generate drift report and notify agent if severity changed."""
+    try:
+        report = generate_drift_report(window_size=window_size)
+        notification_result = await notify_agent_if_severity_changed(
+            drift_report=report,
+        )
+
+        return {
+            "drift_report": report,
+            "notification": notification_result,
+        }
+
     except FileNotFoundError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc

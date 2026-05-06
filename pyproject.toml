@@ -12,6 +12,7 @@ dependencies = [
   "uvicorn",
   "pydantic",
   "scipy",
+  "httpx",
 ]
 
 [project.optional-dependencies]
