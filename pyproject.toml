@@ -13,6 +13,9 @@ dependencies = [
   "pydantic",
   "scipy",
   "httpx",
+ "langgraph",
+  "streamlit",
+  "requests",
 ]
 
 [project.optional-dependencies]
