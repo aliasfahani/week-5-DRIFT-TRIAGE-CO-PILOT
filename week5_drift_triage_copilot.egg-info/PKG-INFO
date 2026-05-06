@@ -11,5 +11,6 @@ Requires-Dist: fastapi
 Requires-Dist: uvicorn
 Requires-Dist: pydantic
 Requires-Dist: scipy
+Requires-Dist: httpx
 Provides-Extra: dev
 Requires-Dist: pytest; extra == "dev"

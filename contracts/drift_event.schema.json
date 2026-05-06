@@ -1,0 +1,81 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "DriftEvent",
+    "type": "object",
+    "required": [
+        "contract_version",
+        "event_id",
+        "report_id",
+        "model_name",
+        "model_version",
+        "severity",
+        "previous_severity",
+        "drifted_features",
+        "recommended_actions",
+        "created_at",
+        "drift_report"
+    ],
+    "properties": {
+        "contract_version": {
+            "type": "string",
+            "const": "v1"
+        },
+        "event_id": {
+            "type": "string"
+        },
+        "report_id": {
+            "type": "string"
+        },
+        "model_name": {
+            "type": "string"
+        },
+        "model_version": {
+            "type": "string"
+        },
+        "severity": {
+            "type": "string",
+            "enum": [
+                "low",
+                "medium",
+                "high"
+            ]
+        },
+        "previous_severity": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "enum": [
+                "low",
+                "medium",
+                "high",
+                null
+            ]
+        },
+        "drifted_features": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "recommended_actions": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "no_action",
+                    "replay_test_set",
+                    "retrain_candidate",
+                    "rollback_candidate"
+                ]
+            }
+        },
+        "created_at": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "drift_report": {
+            "type": "object"
+        }
+    }
+}
