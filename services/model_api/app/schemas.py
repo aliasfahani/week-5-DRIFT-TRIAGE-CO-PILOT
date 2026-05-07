@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any, Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -50,3 +52,41 @@ class HealthResponse(BaseModel):
 
     status: str
     model_loaded: bool
+
+
+class PromotionChecklist(BaseModel):
+    """Checklist required before promotion to Production."""
+
+    model_artifact_exists: bool
+    schema_validated: bool
+    model_card_present: bool
+    threshold_selected: bool
+    reference_stats_present: bool
+    tests_passed: bool
+    human_approved: bool
+
+
+class PromotionRequest(BaseModel):
+    """Programmatic request to promote a model to Production."""
+
+    model_name: str = "bank_marketing_classifier"
+    model_version: str = "local-artifact"
+    model_uri: str = "artifacts/model_api/model.joblib"
+    requested_by: Literal["agent"]
+    approval_id: str
+    checklist: PromotionChecklist
+    requested_action: Literal["retrain_candidate", "rollback_candidate"] | None = None
+
+
+class PromotionResponse(BaseModel):
+    """Promotion result payload."""
+
+    model_name: str
+    model_version: str
+    model_uri: str
+    stage: str
+    promoted_at: str
+    requested_by: str
+    approval_id: str
+    requested_action: str | None = None
+    model_card: dict[str, Any]
