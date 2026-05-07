@@ -1,0 +1,7 @@
+{
+  "trajectory": ["supervisor", "triage", "action", "comms"],
+  "status": "pending_human_approval",
+  "drift_type": "mixed",
+  "action_recommendation": ["replay_test_set", "retrain_candidate", "rollback_candidate"],
+  "needs_human_approval": true
+}
