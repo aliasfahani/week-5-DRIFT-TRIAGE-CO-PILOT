@@ -7,6 +7,9 @@ uvicorn
 pydantic
 scipy
 httpx
+langgraph
+streamlit
+requests
 
 [dev]
 pytest

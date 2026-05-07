@@ -4,6 +4,11 @@ services/__init__.py
 services/agent_api/app/main.py
 services/agent_api/app/schemas.py
 services/agent_api/app/store.py
+services/agent_api/app/graph/__init__.py
+services/agent_api/app/graph/graph.py
+services/agent_api/app/graph/nodes.py
+services/agent_api/app/graph/prompts.py
+services/agent_api/app/graph/state.py
 services/model_api/__init__.py
 services/model_api/app/__init__.py
 services/model_api/app/drift.py

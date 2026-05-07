@@ -12,5 +12,8 @@ Requires-Dist: uvicorn
 Requires-Dist: pydantic
 Requires-Dist: scipy
 Requires-Dist: httpx
+Requires-Dist: langgraph
+Requires-Dist: streamlit
+Requires-Dist: requests
 Provides-Extra: dev
 Requires-Dist: pytest; extra == "dev"
