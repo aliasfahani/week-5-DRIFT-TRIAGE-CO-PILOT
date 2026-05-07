@@ -13,7 +13,9 @@ dependencies = [
   "pydantic",
   "scipy",
   "httpx",
- "langgraph",
+  "langgraph",
+  "psycopg[binary]",
+  "redis",
   "streamlit",
   "requests",
 ]

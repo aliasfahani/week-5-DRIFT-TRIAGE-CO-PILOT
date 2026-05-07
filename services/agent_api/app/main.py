@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from services.agent_api.app.graph.graph import run_drift_triage
+from services.agent_api.app.queue import enqueue_action, queue_status
 from services.agent_api.app.schemas import DriftEvent, DriftWebhookResponse
 from services.agent_api.app.store import (
     approve_investigation,
@@ -101,6 +102,15 @@ def pending_approvals():
     }
 
 
+@app.get("/queue/status")
+def queue_depth():
+    """Return queue and DLQ depths."""
+    try:
+        return queue_status()
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Queue status failed: {exc}") from exc
+
+
 @app.post("/approvals/{investigation_id}/approve")
 def approve(
     investigation_id: str,
@@ -116,9 +126,25 @@ def approve(
     if updated is None:
         raise HTTPException(status_code=404, detail="Investigation not found.")
 
+    enqueue_results = []
+    for action in updated.get("action_recommendation", []):
+        if action == "no_action":
+            continue
+        enqueue_results.append(
+            enqueue_action(
+                investigation_id=investigation_id,
+                action=action,
+                payload={
+                    "approved_by": request.approved_by,
+                    "approval_note": request.note,
+                },
+            )
+        )
+
     return {
         "status": "approved",
         "investigation": updated,
+        "queue_dispatch": enqueue_results,
     }
 
 

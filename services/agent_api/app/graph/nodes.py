@@ -166,3 +166,11 @@ def comms_node(state: DriftTriageState) -> DriftTriageState:
         "comms_summary": comms_summary,
         "trajectory": _append_trajectory(state, "comms"),
     }
+
+
+NODE_FUNCTIONS = {
+    "supervisor": supervisor_node,
+    "triage": triage_node,
+    "action": action_node,
+    "comms": comms_node,
+}

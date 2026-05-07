@@ -5,6 +5,7 @@ from __future__ import annotations
 from langgraph.graph import END, START, StateGraph
 
 from services.agent_api.app.graph.nodes import (
+    NODE_FUNCTIONS,
     action_node,
     comms_node,
     supervisor_node,
@@ -12,6 +13,9 @@ from services.agent_api.app.graph.nodes import (
 )
 from services.agent_api.app.graph.state import DriftTriageState
 from services.agent_api.app.schemas import DriftEvent
+from services.agent_api.app.store import get_latest_checkpoint, save_checkpoint
+
+ORDERED_NODES = ("supervisor", "triage", "action", "comms")
 
 
 def build_drift_triage_graph():
@@ -55,8 +59,44 @@ def event_to_initial_state(event: DriftEvent) -> DriftTriageState:
 
 
 def run_drift_triage(event: DriftEvent) -> DriftTriageState:
-    """Run the full drift triage graph for one event."""
-    graph = build_drift_triage_graph()
+    """Run drift triage with durable checkpoints and resume support."""
     initial_state = event_to_initial_state(event)
-    final_state = graph.invoke(initial_state)
-    return final_state
+    investigation_id = initial_state["investigation_id"]
+    latest_checkpoint = get_latest_checkpoint(investigation_id)
+
+    if latest_checkpoint is None:
+        graph = build_drift_triage_graph()
+        final_state: DriftTriageState = initial_state
+
+        save_checkpoint(
+            investigation_id=investigation_id,
+            node_name="start",
+            state=dict(initial_state),
+        )
+
+        for state in graph.stream(initial_state, stream_mode="values"):
+            final_state = state
+            trajectory = state.get("trajectory", [])
+            current_node = trajectory[-1] if trajectory else "start"
+            save_checkpoint(
+                investigation_id=investigation_id,
+                node_name=current_node,
+                state=dict(state),
+            )
+
+        return final_state
+
+    resumed_state = latest_checkpoint.get("state", initial_state)
+    completed_nodes = len(resumed_state.get("trajectory", []))
+    remaining_nodes = ORDERED_NODES[completed_nodes:]
+
+    state: DriftTriageState = resumed_state
+    for node_name in remaining_nodes:
+        state = NODE_FUNCTIONS[node_name](state)
+        save_checkpoint(
+            investigation_id=investigation_id,
+            node_name=node_name,
+            state=dict(state),
+        )
+
+    return state
