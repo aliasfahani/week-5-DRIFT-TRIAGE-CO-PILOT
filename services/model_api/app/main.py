@@ -8,10 +8,13 @@ from fastapi import FastAPI, HTTPException
 
 from services.model_api.app.drift import generate_drift_report
 from services.model_api.app.predictor import ModelPredictor
+from services.model_api.app.registry import load_registry_state, promote_to_production
 from services.model_api.app.schemas import (
     BankMarketingRequest,
     HealthResponse,
     PredictionResponse,
+    PromotionRequest,
+    PromotionResponse,
 )
 from services.model_api.app.webhook import notify_agent_if_severity_changed
 
@@ -89,3 +92,20 @@ async def drift_check_and_notify(window_size: int = 100):
 
     except FileNotFoundError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/registry/state")
+def registry_state():
+    """Return current registry state."""
+    return load_registry_state()
+
+
+@app.post("/registry/promote", response_model=PromotionResponse)
+def promote(request: PromotionRequest):
+    """Promote model to Production through programmatic gate."""
+    try:
+        return PromotionResponse(**promote_to_production(request))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Promotion failed: {exc}") from exc

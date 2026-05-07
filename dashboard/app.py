@@ -49,6 +49,7 @@ page = st.sidebar.radio(
         "Drift Report",
         "Investigations",
         "Human Approval Inbox",
+        "Queue Status",
     ],
 )
 
@@ -165,3 +166,17 @@ elif page == "Human Approval Inbox":
                         )
                         st.warning("Rejected")
                         st.json(result)
+
+
+elif page == "Queue Status":
+    st.header("Queue Status")
+    data = get_json(f"{AGENT_API_URL}/queue/status")
+
+    if "error" in data:
+        st.error(data["error"])
+    else:
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Main queue depth", data.get("main_depth", 0))
+        col2.metric("Retry queue depth", data.get("retry_depth", 0))
+        col3.metric("DLQ depth", data.get("dlq_depth", 0))
+        st.json(data)
